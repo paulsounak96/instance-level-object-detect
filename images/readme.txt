@@ -1,0 +1,1 @@
+Please extract these images in the same folder that you keep the ipynb notebook, since in the notebook I have only specified the names of these images as their paths. For example, in my notebook, I used the code, cv2.imread('stop-reference.jpg'), instead of, cv2.imread('images/stop-reference.jpg'). Thanks!
