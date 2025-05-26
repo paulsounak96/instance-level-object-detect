@@ -23,7 +23,8 @@ def create_database(image, descriptor_method = 'sift'):
 
 
 
-def database_lookup(lookup_keypoint, lookup_descriptor, train_keypoints, train_descriptors, train_shape, ratio_test_coeff = 0.8):
+def database_lookup(lookup_keypoint, lookup_descriptor, train_keypoints,\
+                     train_descriptors, train_shape, ratio_test_coeff = 0.8):
   """
   Enables lookup of SIFT descriptors with created database, and returns parameters
   (i.e. coordinates of bottom left and top right corners) of bounding rectangle.
@@ -41,7 +42,8 @@ def database_lookup(lookup_keypoint, lookup_descriptor, train_keypoints, train_d
       angle = lookup_keypoint[0].angle - train_keypoints[m.trainIdx].angle
       scale = lookup_keypoint[0].size/train_keypoints[m.trainIdx].size
 
-      good =[tuple(origin), train_keypoints[m.trainIdx].pt, rotate_and_scale(origin, point_c1, angle = angle, scale = scale),\
+      good =[tuple(origin), train_keypoints[m.trainIdx].pt,\
+              rotate_and_scale(origin, point_c1, angle = angle, scale = scale),\
                            rotate_and_scale(origin, point_c2, angle = angle, scale = scale)]
     else:
       good = []
@@ -93,21 +95,25 @@ def preliminary_boundingbox_corners(test_image, training_image, vote_threshold=5
   database_results = []
 
   for i in range(len(test_keypoints)):
-    info = database_lookup(test_keypoints[i:i+1], test_descriptors[i:i+1], train_keypoints, train_descriptors, training_image.shape, 0.8)
+    info = database_lookup(test_keypoints[i:i+1], test_descriptors[i:i+1],\
+                            train_keypoints, train_descriptors, training_image.shape, 0.8)
     if len(info) > 0:
       database_results.append(info)
 
-  hough_clusters = hough_voting(database_results, vote_threshold=vote_threshold, cluster_size=cluster_size)
+  hough_clusters = hough_voting(database_results,\
+                                 vote_threshold=vote_threshold, cluster_size=cluster_size)
   warped_corner_list = []
 
   for cluster in hough_clusters:
     pts_train = np.float32([point[1] for point in cluster])
     pts_test = np.float32([point[0] for point in cluster])
-    affine_matrix, _ = cv2.estimateAffinePartial2D(pts_train, pts_test, method = cv2.RANSAC, ransacReprojThreshold = 3)
+    affine_matrix, _ = cv2.estimateAffinePartial2D(pts_train, pts_test,\
+                                                    method = cv2.RANSAC, ransacReprojThreshold = 3)
 
     r, c = training_image.shape[:2]
     corners = np.array([[0, 0], [0, r], [c, r], [c, 0]])
-    warped_corners =  np.round(np.hstack([corners, np.array([1,1,1,1])[:, np.newaxis]]) @ affine_matrix.T).astype(int)
+    warped_corners = np.round(np.hstack([corners,\
+                                          np.array([1,1,1,1])[:, np.newaxis]]) @ affine_matrix.T).astype(int)
 
     warped_corner_list.append(warped_corners)
 
@@ -155,7 +161,8 @@ def instance_level_object_detector(test_path, train_path, vote_threshold=5, sens
   
   cluster_size = sensitivity * np.amin(test_image.shape[:2]) / 100.0
   warped_corner_list = preliminary_boundingbox_corners(test_image, training_image,\
-                                                       vote_threshold=vote_threshold, cluster_size=cluster_size)
+                                                       vote_threshold=vote_threshold,\
+                                                          cluster_size=cluster_size)
 
   final_warped_corner_list = duplicate_box_remove(warped_corner_list, 4*cluster_size)
   plot_and_print_results(test_image, final_warped_corner_list)

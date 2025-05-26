@@ -33,9 +33,11 @@ def newline(p1, p2, segment = True, linestyle = '-', color='cyan', linewidth=7):
       ymin = p1[1]+(p2[1]-p1[1])/(p2[0]-p1[0])*(xmin-p1[0])
     
   if segment:
-      l = mlines.Line2D([p1[0], p2[0]], [p1[1], p2[1]], linestyle=linestyle, color=color, linewidth=linewidth)
+      l = mlines.Line2D([p1[0], p2[0]], [p1[1], p2[1]], linestyle=linestyle,\
+                         color=color, linewidth=linewidth)
   else:
-      l = mlines.Line2D([xmin, xmax], [ymin, ymax], linestyle=linestyle, color=color, linewidth=linewidth)
+      l = mlines.Line2D([xmin, xmax], [ymin, ymax], linestyle=linestyle,\
+                         color=color, linewidth=linewidth)
 
   ax.add_line(l)
   return l
@@ -44,7 +46,8 @@ def newline(p1, p2, segment = True, linestyle = '-', color='cyan', linewidth=7):
 
 def rotate_and_scale(origin, point, angle = 0, scale = 1):
     """
-    Rotate a point clockwise by a given angle (in degrees) around a given origin, and scale it by a given factor.
+    Rotate a point clockwise by a given angle (in degrees) around a given origin,
+    and scale it by a given factor.
     """
     theta = math.radians(angle)
     ox, oy = origin[0], origin[1]
@@ -73,7 +76,7 @@ def plot_and_print_results(image, box_corner_list):
 
   print("Number of instances found: %d\n" % (len(box_corner_list)))
   for detection in box_corner_list:
-    print("Bounding box number %d:  %s" % (i, str(tuple([tuple(point) for point in detection]))))
+    print("Bounding box number %d:  %s" % (i, str(tuple([tuple(point) for point in detection.tolist()]))))
     i = i+1
     newline(detection[0], detection[1])
     newline(detection[1], detection[2])
